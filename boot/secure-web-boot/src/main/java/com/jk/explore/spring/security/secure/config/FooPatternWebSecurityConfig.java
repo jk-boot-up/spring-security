@@ -13,34 +13,18 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
 @EnableWebSecurity
-@Order(10000)
-public class BasicWebSecurityConfig extends WebSecurityConfigurerAdapter {
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http
-			.authorizeRequests()
-				.antMatchers("/", "/home").permitAll()
-				// refer AbstractConfigAttributeRequestMatcherRegistry
-				.anyRequest().authenticated()
-				.and()
-			.formLogin()
-				.loginPage("/login")
-				.permitAll()
-				.and()
-			.logout()
-				.permitAll();
-	}
+@Order(18000) // DEVNOTE: Look at FilterChainProxy to see the importance of this order element
+public class FooPatternWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Bean
-	@Override
-	public UserDetailsService userDetailsService() {
-		UserDetails user =
-			 User.withDefaultPasswordEncoder()
-				.username("user")
-				.password("password")
-				.roles("USER")
-				.build();
 
-		return new InMemoryUserDetailsManager(user);
-	}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .authorizeRequests()
+                // DEVNOTE: Look at FilterChainProxy to better understand the role of it
+                // refer AbstractConfigAttributeRequestMatcherRegistry
+                .antMatchers("/foo").permitAll()
+                .anyRequest().authenticated();
+    }
+
 }
